@@ -27,7 +27,7 @@ import type {
   PlatformStats,
   SellerAnalytics,
   SellerWithOwner,
-} from "@/lib/types/database";
+} from "@/lib/types";
 
 const PLACEHOLDER_IMG =
   "https://placehold.co/400x400/e2e8f0/64748b?text=Product";

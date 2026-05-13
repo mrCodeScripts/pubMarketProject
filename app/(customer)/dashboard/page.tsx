@@ -19,12 +19,18 @@ import {
   mockNotifications,
   mockCategories,
 } from "@/lib/mockup/pubMarket-data-mockup";
-import type { ProductCard, OrderSummary, Notification, Category } from "@/lib/types";
+import type {
+  ProductCard,
+  OrderSummary,
+  Notification,
+  Category,
+} from "@/lib/types";
 import { useEffect, useState } from "react";
 import { ProductCategorySkeletonV1 } from "@/components/custom/skeleton/productCategorySkeleton";
 import { ActiveOrdersSkeletonV1 } from "@/components/custom/skeleton/activeOrdersSkeleton";
 import { BecomeASellerCTASkeletonV1 } from "@/components/custom/skeleton/ctaSkeletons";
 import { ProductSkeletonV1 } from "@/components/custom/skeleton/productsSkeleton";
+import { RecentNotificationsSkeletonV1 } from "@/components/custom/skeleton/notificationsSkeleton";
 
 // ── ORDER STATUS CONFIG ──
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -164,18 +170,34 @@ function NotificationItem({ notification }: { notification: Notification }) {
 // ── MAIN PAGE ──
 export default function DashboardPage() {
   const firstName = mockCurrentUser.fullName.split(" ")[0];
-  const recentNotifs = mockNotifications
-    .filter((n) => n.userId === mockCurrentUser.id)
-    .slice(0, 3);
   const isSeller = mockCurrentUser.sellerStatus === "approved";
 
   const [categoriesLoading, setCategoriesLoading] = useState<boolean>(true);
-  const [productCategories, setProductCategories] = useState<{success: boolean;categoryData: Category[]}>({success: false, categoryData: []});
+  const [productCategories, setProductCategories] = useState<{
+    success: boolean;
+    categoryData: Category[];
+  }>({ success: false, categoryData: [] });
   const [activeOrdersLoading, setActiveOrdersLoading] = useState<boolean>(true);
-  const [activeOrders, setActiveOrders] = useState<{success: boolean; activeOrdersData: OrderSummary[]}>({success: false, activeOrdersData: []});
-  const [currentUserIsSellerLoading, setCurrentUserIsSellerLoading] = useState<boolean>(true);
-  const [currentUserIsSeller, setCurrentUserIsSeller] = useState<boolean>(false);
-
+  const [activeOrders, setActiveOrders] = useState<{
+    success: boolean;
+    activeOrdersData: OrderSummary[];
+  }>({ success: false, activeOrdersData: [] });
+  const [currentUserIsSellerLoading, setCurrentUserIsSellerLoading] =
+    useState<boolean>(true);
+  const [currentUserIsSeller, setCurrentUserIsSeller] =
+    useState<boolean>(false);
+  const [trendingProducts, setTrendingProducts] = useState<{
+    success: boolean;
+    trendingProducts: ProductCard[];
+  }>();
+  const [trendingProductsIsLoading, setTrendingProductsIsLoading] =
+    useState<boolean>(true);
+  const [recentNotifsIsLoading, setRecentNotifsIsLoading] =
+    useState<boolean>(true);
+  const [recentNotifs, setRecentNotifs] = useState<{
+    success: boolean;
+    recentNotifsData: Notification[];
+  }>({ success: false, recentNotifsData: [] });
 
   const fetchCategories = async () => {
     setCategoriesLoading(true);
@@ -184,13 +206,13 @@ export default function DashboardPage() {
     console.log(result);
     if (!result.success) {
       setCategoriesLoading(false);
-      setProductCategories({success: false, categoryData: []});
+      setProductCategories({ success: false, categoryData: [] });
       return;
     }
-    setProductCategories({success: true, categoryData: result.data});
+    setProductCategories({ success: true, categoryData: result.data });
     setCategoriesLoading(false);
   };
-  
+
   const fetchActiveOrders = async () => {
     setCategoriesLoading(true);
     const res = await fetch("/api/orders/activeOrders");
@@ -198,10 +220,10 @@ export default function DashboardPage() {
     console.log(result);
     if (!result.success) {
       setActiveOrdersLoading(false);
-      setActiveOrders({success: false, activeOrdersData: []});
+      setActiveOrders({ success: false, activeOrdersData: [] });
       return;
     }
-    setActiveOrders({success: true, activeOrdersData: result.data});
+    setActiveOrders({ success: true, activeOrdersData: result.data });
     setActiveOrdersLoading(false);
   };
 
@@ -221,10 +243,41 @@ export default function DashboardPage() {
     setCurrentUserIsSellerLoading(false);
   };
 
+  const fetchTrendingProducts = async () => {
+    setTrendingProductsIsLoading(true);
+    const res = await fetch("/api/products/trendingProducts");
+    const result = await res.json();
+    console.log(result);
+    if (!result.success) {
+      setTrendingProductsIsLoading(false);
+      return;
+    }
+    setTrendingProductsIsLoading(false);
+    setTrendingProducts({ success: true, trendingProducts: result.data });
+  };
+
+  const fetchRecentNotifs = async (id: string) => {
+    setRecentNotifsIsLoading(true);
+    const res = await fetch("/api/notifications", {
+      method: "POST",
+      body: JSON.stringify({id})
+    });
+    const result = await res.json();
+    console.log(result);
+    if (!result.success) {
+      setRecentNotifsIsLoading(false);
+      return;
+    }
+    setRecentNotifsIsLoading(false);
+    setRecentNotifs({ success: true, recentNotifsData: result.data });
+  };
+
   useEffect(() => {
     fetchCategories();
     fetchActiveOrders();
     fetchIsUseSeller();
+    fetchTrendingProducts();
+    fetchRecentNotifs(mockCurrentUser.id);
   }, []);
 
   return (
@@ -258,28 +311,28 @@ export default function DashboardPage() {
       <section>
         <h2 className="text-base font-semibold mb-3">Browse by Category</h2>
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4">
-          {
-            categoriesLoading && <ProductCategorySkeletonV1 />
-          }
-          { productCategories.success && productCategories.categoryData.length > 0 && productCategories.categoryData.slice(0, 10).map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/products?category=${cat.slug}`}
-              className="flex-shrink-0 flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-card hover:bg-accent hover:border-pm-green-200 transition-colors w-20"
-            >
-              <span className="text-2xl">{cat.icon}</span>
-              <span className="text-[10px] text-center font-medium leading-tight">
-                {cat.name}
-              </span>
-            </Link>
-          ))}
+          {categoriesLoading && <ProductCategorySkeletonV1 />}
+          {productCategories.success &&
+            productCategories.categoryData.length > 0 &&
+            productCategories.categoryData.slice(0, 10).map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/products?category=${cat.slug}`}
+                className="flex-shrink-0 flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-card hover:bg-accent hover:border-pm-green-200 transition-colors w-20"
+              >
+                <span className="text-2xl">{cat.icon}</span>
+                <span className="text-[10px] text-center font-medium leading-tight">
+                  {cat.name}
+                </span>
+              </Link>
+            ))}
         </div>
       </section>
 
       {/* ── ACTIVE ORDERS ── */}
-      {
-        activeOrdersLoading && !activeOrders.success && <ActiveOrdersSkeletonV1 />
-      }
+      {activeOrdersLoading && !activeOrders.success && (
+        <ActiveOrdersSkeletonV1 />
+      )}
       {activeOrders?.activeOrdersData.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-3">
@@ -306,10 +359,10 @@ export default function DashboardPage() {
       )}
 
       {/* ── BECOME A SELLER CTA ── */}
-      {
-        currentUserIsSellerLoading ? (
-        <BecomeASellerCTASkeletonV1 />) : (
-        currentUserIsSeller ? (<Card className="border-pm-green-200 bg-pm-green-50">
+      {currentUserIsSellerLoading ? (
+        <BecomeASellerCTASkeletonV1 />
+      ) : currentUserIsSeller ? (
+        <Card className="border-pm-green-200 bg-pm-green-50">
           <CardContent className="p-4 flex items-center justify-between gap-4">
             <div>
               <p className="font-semibold text-pm-green-800">
@@ -325,36 +378,39 @@ export default function DashboardPage() {
               </Button>
             </Link>
           </CardContent>
-        </Card>) : null
-      )}
+        </Card>
+      ) : null}
 
       {/* ── FEATURED / TRENDING PRODUCTS ── */}
-      <ProductSkeletonV1 />
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-semibold flex items-center gap-2">
-            <ShoppingBag className="w-4 h-4 text-primary" />
-            Trending Near You
-          </h2>
-          <Link href="/products">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs text-primary h-7 px-2"
-            >
-              See all <ChevronRight className="w-3 h-3 ml-0.5" />
-            </Button>
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {mockFeaturedProducts.map((product) => (
-            <ProductCardItem key={product.id} product={product} />
-          ))}
-        </div>
-      </section>
+      {trendingProductsIsLoading && <ProductSkeletonV1 />}
+      {!trendingProductsIsLoading && trendingProducts?.success && (
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-semibold flex items-center gap-2">
+              <ShoppingBag className="w-4 h-4 text-primary" />
+              Trending Near You
+            </h2>
+            <Link href="/products">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs text-primary h-7 px-2"
+              >
+                See all <ChevronRight className="w-3 h-3 ml-0.5" />
+              </Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {mockFeaturedProducts.map((product) => (
+              <ProductCardItem key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── NOTIFICATIONS PREVIEW ── */}
-      {recentNotifs.length > 0 && (
+      {recentNotifsIsLoading && !recentNotifs.success && <RecentNotificationsSkeletonV1 />}
+      {!recentNotifsIsLoading && recentNotifs.recentNotifsData.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-semibold">Recent Notifications</h2>
@@ -369,7 +425,7 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="space-y-2">
-            {recentNotifs.map((notif) => (
+            {recentNotifs.recentNotifsData.map((notif) => (
               <NotificationItem key={notif.id} notification={notif} />
             ))}
           </div>

@@ -6,6 +6,7 @@ export type SellerAnalytics = {
   ordersCount: number;
   unitsSold: number;
   newReviews: number;
+  createdAt?: string;
 };
 
 // For admin dashboard platform-wide stats
