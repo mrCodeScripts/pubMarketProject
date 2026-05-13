@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Package,
@@ -17,7 +19,12 @@ import {
   mockNotifications,
   mockCategories,
 } from "@/lib/mockup/pubMarket-data-mockup";
-import type { ProductCard, OrderSummary, Notification } from "@/lib/types";
+import type { ProductCard, OrderSummary, Notification, Category } from "@/lib/types";
+import { useEffect, useState } from "react";
+import { ProductCategorySkeletonV1 } from "@/components/custom/skeleton/productCategorySkeleton";
+import { ActiveOrdersSkeletonV1 } from "@/components/custom/skeleton/activeOrdersSkeleton";
+import { BecomeASellerCTASkeletonV1 } from "@/components/custom/skeleton/ctaSkeletons";
+import { ProductSkeletonV1 } from "@/components/custom/skeleton/productsSkeleton";
 
 // ── ORDER STATUS CONFIG ──
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -157,13 +164,68 @@ function NotificationItem({ notification }: { notification: Notification }) {
 // ── MAIN PAGE ──
 export default function DashboardPage() {
   const firstName = mockCurrentUser.fullName.split(" ")[0];
-  const activeOrders = mockOrderSummaries
-    .filter((o) => !["delivered", "cancelled"].includes(o.status))
-    .slice(0, 3);
   const recentNotifs = mockNotifications
     .filter((n) => n.userId === mockCurrentUser.id)
     .slice(0, 3);
   const isSeller = mockCurrentUser.sellerStatus === "approved";
+
+  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(true);
+  const [productCategories, setProductCategories] = useState<{success: boolean;categoryData: Category[]}>({success: false, categoryData: []});
+  const [activeOrdersLoading, setActiveOrdersLoading] = useState<boolean>(true);
+  const [activeOrders, setActiveOrders] = useState<{success: boolean; activeOrdersData: OrderSummary[]}>({success: false, activeOrdersData: []});
+  const [currentUserIsSellerLoading, setCurrentUserIsSellerLoading] = useState<boolean>(true);
+  const [currentUserIsSeller, setCurrentUserIsSeller] = useState<boolean>(false);
+
+
+  const fetchCategories = async () => {
+    setCategoriesLoading(true);
+    const res = await fetch("/api/categories");
+    const result = await res.json();
+    console.log(result);
+    if (!result.success) {
+      setCategoriesLoading(false);
+      setProductCategories({success: false, categoryData: []});
+      return;
+    }
+    setProductCategories({success: true, categoryData: result.data});
+    setCategoriesLoading(false);
+  };
+  
+  const fetchActiveOrders = async () => {
+    setCategoriesLoading(true);
+    const res = await fetch("/api/orders/activeOrders");
+    const result = await res.json();
+    console.log(result);
+    if (!result.success) {
+      setActiveOrdersLoading(false);
+      setActiveOrders({success: false, activeOrdersData: []});
+      return;
+    }
+    setActiveOrders({success: true, activeOrdersData: result.data});
+    setActiveOrdersLoading(false);
+  };
+
+  const fetchIsUseSeller = async () => {
+    setCurrentUserIsSellerLoading(true);
+    const res = await fetch("/api/seller/apply", {
+      method: "POST",
+    });
+    const result = await res.json();
+    console.log(result);
+    if (!result.success && result.error === "ALREADY_APPROVED") {
+      setCurrentUserIsSellerLoading(false);
+      setCurrentUserIsSeller(true);
+      return;
+    }
+    setCurrentUserIsSeller(true);
+    setCurrentUserIsSellerLoading(false);
+  };
+
+  useEffect(() => {
+    fetchCategories();
+    fetchActiveOrders();
+    fetchIsUseSeller();
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-8">
@@ -196,7 +258,10 @@ export default function DashboardPage() {
       <section>
         <h2 className="text-base font-semibold mb-3">Browse by Category</h2>
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4">
-          {mockCategories.slice(0, 10).map((cat) => (
+          {
+            categoriesLoading && <ProductCategorySkeletonV1 />
+          }
+          { productCategories.success && productCategories.categoryData.length > 0 && productCategories.categoryData.slice(0, 10).map((cat) => (
             <Link
               key={cat.id}
               href={`/products?category=${cat.slug}`}
@@ -212,7 +277,10 @@ export default function DashboardPage() {
       </section>
 
       {/* ── ACTIVE ORDERS ── */}
-      {activeOrders.length > 0 && (
+      {
+        activeOrdersLoading && !activeOrders.success && <ActiveOrdersSkeletonV1 />
+      }
+      {activeOrders?.activeOrdersData.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-semibold flex items-center gap-2">
@@ -230,7 +298,7 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="space-y-2">
-            {activeOrders.map((order) => (
+            {activeOrders.activeOrdersData.map((order) => (
               <ActiveOrderStrip key={order.id} order={order} />
             ))}
           </div>
@@ -238,8 +306,10 @@ export default function DashboardPage() {
       )}
 
       {/* ── BECOME A SELLER CTA ── */}
-      {!isSeller && (
-        <Card className="border-pm-green-200 bg-pm-green-50">
+      {
+        currentUserIsSellerLoading ? (
+        <BecomeASellerCTASkeletonV1 />) : (
+        currentUserIsSeller ? (<Card className="border-pm-green-200 bg-pm-green-50">
           <CardContent className="p-4 flex items-center justify-between gap-4">
             <div>
               <p className="font-semibold text-pm-green-800">
@@ -255,10 +325,11 @@ export default function DashboardPage() {
               </Button>
             </Link>
           </CardContent>
-        </Card>
+        </Card>) : null
       )}
 
       {/* ── FEATURED / TRENDING PRODUCTS ── */}
+      <ProductSkeletonV1 />
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-semibold flex items-center gap-2">

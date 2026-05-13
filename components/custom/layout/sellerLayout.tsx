@@ -69,9 +69,21 @@ export default function SellerLayout({
   }, []);
 
   const handleSignOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
+    const res = await fetch("/api/auth/logout", {
+      method: "POST"
+    });
+
+    const result = await res.json();
+
+    console.log(result)
+
+    // if (!result.success) {
+    //   console.log(result);
+    // }
+
+    // const supabase = createClient();
+    // await supabase.auth.signOut();
+    // router.push("/login");
   };
 
   const SidebarContent = () => (

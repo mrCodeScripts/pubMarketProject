@@ -28,12 +28,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Slider } from "@/components/ui/slider";
+// import { Slider } from "@/components/ui/slider";
 import {
   mockProducts,
   mockCategories,
 } from "@/lib/mockup/pubMarket-data-mockup";
-import type { ProductCard, ProductFilters } from "@/lib/types/database";
+import { ProductCard as ProdCard, ProductLocation, ProductFilters } from "@/lib/types";
+// import type { ProductCard, ProductFilters } from "@/lib/types/database";
 
 const DEFAULT_FILTERS: ProductFilters = {
   search: "",
@@ -49,7 +50,7 @@ const DEFAULT_FILTERS: ProductFilters = {
   pageSize: 20,
 };
 
-function ProductCard({ product }: { product: ProductCard }) {
+function ProductCard({ product }: { product: ProdCard }) {
   const discount = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : null;
@@ -265,7 +266,7 @@ export default function ProductsPage() {
           </SelectContent>
         </Select>
         <Sheet>
-          <SheetTrigger asChild>
+          <div>
             <Button
               variant="outline"
               size="icon"
@@ -278,7 +279,7 @@ export default function ProductsPage() {
                 </Badge>
               )}
             </Button>
-          </SheetTrigger>
+          </div>
           <SheetContent side="left">
             <SheetHeader>
               <SheetTitle>Filters</SheetTitle>
