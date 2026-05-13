@@ -19,7 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ENV } from "@/lib/constants";
 import { ProfileSkeletonV1 as ProfileSkeleton } from "@/components/custom/skeleton/profileSkeleton";
-import { DbProfile } from "@/types/database"; // Adjust based on your types path
+import { DbProfile } from "@/lib/types"; // Adjust based on your types path
 
 export default function ProfilePage() {
   const router = useRouter();

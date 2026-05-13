@@ -192,7 +192,7 @@ export default function SellerApplyPage() {
         user_id: user.id,
         shop_name: form.shopName,
         shop_description: form.description,
-        category: form.category, // Added this
+        // category: form.category, // Added this
         province: form.province,
         city: form.city,
         barangay: form.barangay,
