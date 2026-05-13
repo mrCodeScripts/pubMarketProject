@@ -1,0 +1,298 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   PUBMARKET — BRAND PALETTE (raw stops, oklch)
+   Exposed as Tailwind utilities via @theme inline below.
+   ============================================================ */
+:root {
+  /* Market Green */
+  --pm-green-50: oklch(0.98 0.02 150);
+  --pm-green-100: oklch(0.95 0.05 150);
+  --pm-green-200: oklch(0.91 0.09 150);
+  --pm-green-300: oklch(0.84 0.13 150);
+  --pm-green-400: oklch(0.76 0.16 150);
+  --pm-green-500: oklch(0.66 0.16 150);
+  --pm-green-600: oklch(0.55 0.155 150); /* primary brand */
+  --pm-green-700: oklch(0.47 0.14 150);
+  --pm-green-800: oklch(0.39 0.12 150);
+  --pm-green-900: oklch(0.33 0.1 150);
+  --pm-green-950: oklch(0.22 0.07 150);
+
+  /* Market Gold */
+  --pm-gold-50: oklch(0.99 0.02 90);
+  --pm-gold-100: oklch(0.97 0.05 90);
+  --pm-gold-200: oklch(0.93 0.1 90);
+  --pm-gold-300: oklch(0.88 0.15 90);
+  --pm-gold-400: oklch(0.82 0.17 80);
+  --pm-gold-500: oklch(0.74 0.17 72);
+  --pm-gold-600: oklch(0.65 0.17 65); /* secondary brand */
+  --pm-gold-700: oklch(0.56 0.15 60);
+  --pm-gold-800: oklch(0.46 0.13 58);
+  --pm-gold-900: oklch(0.39 0.11 55);
+  --pm-gold-950: oklch(0.26 0.07 52);
+
+  /* Palengke Red */
+  --pm-red-50: oklch(0.98 0.02 15);
+  --pm-red-100: oklch(0.95 0.05 15);
+  --pm-red-200: oklch(0.9 0.09 15);
+  --pm-red-300: oklch(0.82 0.14 15);
+  --pm-red-400: oklch(0.73 0.18 15);
+  --pm-red-500: oklch(0.63 0.21 15);
+  --pm-red-600: oklch(0.55 0.22 15); /* accent / destructive */
+  --pm-red-700: oklch(0.46 0.19 15);
+  --pm-red-800: oklch(0.38 0.16 15);
+  --pm-red-900: oklch(0.33 0.13 15);
+  --pm-red-950: oklch(0.21 0.08 15);
+
+  /* Warm Stone (neutrals) */
+  --pm-stone-50: oklch(0.99 0.002 75);
+  --pm-stone-100: oklch(0.97 0.003 75);
+  --pm-stone-200: oklch(0.92 0.005 75);
+  --pm-stone-300: oklch(0.86 0.007 75);
+  --pm-stone-400: oklch(0.7 0.01 75);
+  --pm-stone-500: oklch(0.55 0.012 75);
+  --pm-stone-600: oklch(0.44 0.012 75);
+  --pm-stone-700: oklch(0.36 0.01 75);
+  --pm-stone-800: oklch(0.26 0.008 75);
+  --pm-stone-900: oklch(0.2 0.006 75);
+  --pm-stone-950: oklch(0.13 0.004 75);
+
+  /* ── Override Shadcn semantic tokens with PubMarket colors ── */
+  --background: oklch(1 0 0);
+  --foreground: var(--pm-stone-900);
+
+  --card: oklch(1 0 0);
+  --card-foreground: var(--pm-stone-900);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--pm-stone-900);
+
+  --primary: var(--pm-green-600);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: var(--pm-stone-100);
+  --secondary-foreground: var(--pm-stone-700);
+
+  --muted: var(--pm-stone-100);
+  --muted-foreground: var(--pm-stone-500);
+
+  --accent: var(--pm-green-50);
+  --accent-foreground: var(--pm-green-800);
+
+  --destructive: var(--pm-red-600);
+
+  --border: var(--pm-stone-200);
+  --input: var(--pm-stone-200);
+  --ring: var(--pm-green-600);
+
+  /* Chart colors — mapped to brand palette */
+  --chart-1: var(--pm-green-600);
+  --chart-2: var(--pm-gold-500);
+  --chart-3: var(--pm-stone-400);
+  --chart-4: var(--pm-red-500);
+  --chart-5: var(--pm-green-300);
+
+  /* Sidebar */
+  --sidebar: var(--pm-stone-50);
+  --sidebar-foreground: var(--pm-stone-800);
+  --sidebar-primary: var(--pm-green-600);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: var(--pm-green-50);
+  --sidebar-accent-foreground: var(--pm-green-700);
+  --sidebar-border: var(--pm-stone-200);
+  --sidebar-ring: var(--pm-green-600);
+
+  --radius: 0.625rem;
+
+  /* Status shorthand (used in badge components) */
+  --success-bg: var(--pm-green-100);
+  --success-fg: var(--pm-green-800);
+  --warning-bg: var(--pm-gold-100);
+  --warning-fg: var(--pm-gold-800);
+  --danger-bg: var(--pm-red-100);
+  --danger-fg: var(--pm-red-800);
+}
+
+.dark {
+  --background: var(--pm-stone-950);
+  --foreground: var(--pm-stone-50);
+
+  --card: var(--pm-stone-900);
+  --card-foreground: var(--pm-stone-50);
+
+  --popover: var(--pm-stone-900);
+  --popover-foreground: var(--pm-stone-50);
+
+  --primary: var(--pm-green-500);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: var(--pm-stone-800);
+  --secondary-foreground: var(--pm-stone-100);
+
+  --muted: var(--pm-stone-800);
+  --muted-foreground: var(--pm-stone-400);
+
+  --accent: var(--pm-green-950);
+  --accent-foreground: var(--pm-green-300);
+
+  --destructive: var(--pm-red-500);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: var(--pm-green-500);
+
+  --chart-1: var(--pm-green-400);
+  --chart-2: var(--pm-gold-400);
+  --chart-3: var(--pm-stone-500);
+  --chart-4: var(--pm-red-400);
+  --chart-5: var(--pm-green-600);
+
+  --sidebar: var(--pm-stone-900);
+  --sidebar-foreground: var(--pm-stone-100);
+  --sidebar-primary: var(--pm-green-500);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: var(--pm-green-950);
+  --sidebar-accent-foreground: var(--pm-green-300);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: var(--pm-green-500);
+
+  --success-bg: var(--pm-green-950);
+  --success-fg: var(--pm-green-300);
+  --warning-bg: var(--pm-gold-950);
+  --warning-fg: var(--pm-gold-300);
+  --danger-bg: var(--pm-red-950);
+  --danger-fg: var(--pm-red-300);
+}
+
+/* ============================================================
+   TAILWIND v4 @theme — all tokens exposed as utility classes
+   ============================================================ */
+@theme inline {
+  /* ── Shadcn required mappings (keep all) ── */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Fix: Point the default sans to your Jakarta variable */
+  --font-sans: var(--font-jakarta);
+  --font-mono: var(--font-geist-mono);
+
+  /* This creates the 'font-pm-sans' utility you wanted earlier */
+  --font-pm-sans: var(--font-jakarta);
+
+  /* This creates 'font-jakarta' */
+  --font-jakarta: var(--font-jakarta);
+
+  /* ── PubMarket brand palette as Tailwind utilities ──
+     Usage: bg-pm-green-600, text-pm-gold-500, border-pm-red-200, etc. */
+  --color-pm-green-50: var(--pm-green-50);
+  --color-pm-green-100: var(--pm-green-100);
+  --color-pm-green-200: var(--pm-green-200);
+  --color-pm-green-300: var(--pm-green-300);
+  --color-pm-green-400: var(--pm-green-400);
+  --color-pm-green-500: var(--pm-green-500);
+  --color-pm-green-600: var(--pm-green-600);
+  --color-pm-green-700: var(--pm-green-700);
+  --color-pm-green-800: var(--pm-green-800);
+  --color-pm-green-900: var(--pm-green-900);
+  --color-pm-green-950: var(--pm-green-950);
+
+  --color-pm-gold-50: var(--pm-gold-50);
+  --color-pm-gold-100: var(--pm-gold-100);
+  --color-pm-gold-200: var(--pm-gold-200);
+  --color-pm-gold-300: var(--pm-gold-300);
+  --color-pm-gold-400: var(--pm-gold-400);
+  --color-pm-gold-500: var(--pm-gold-500);
+  --color-pm-gold-600: var(--pm-gold-600);
+  --color-pm-gold-700: var(--pm-gold-700);
+  --color-pm-gold-800: var(--pm-gold-800);
+  --color-pm-gold-900: var(--pm-gold-900);
+  --color-pm-gold-950: var(--pm-gold-950);
+
+  --color-pm-red-50: var(--pm-red-50);
+  --color-pm-red-100: var(--pm-red-100);
+  --color-pm-red-200: var(--pm-red-200);
+  --color-pm-red-300: var(--pm-red-300);
+  --color-pm-red-400: var(--pm-red-400);
+  --color-pm-red-500: var(--pm-red-500);
+  --color-pm-red-600: var(--pm-red-600);
+  --color-pm-red-700: var(--pm-red-700);
+  --color-pm-red-800: var(--pm-red-800);
+  --color-pm-red-900: var(--pm-red-900);
+  --color-pm-red-950: var(--pm-red-950);
+
+  --color-pm-stone-50: var(--pm-stone-50);
+  --color-pm-stone-100: var(--pm-stone-100);
+  --color-pm-stone-200: var(--pm-stone-200);
+  --color-pm-stone-300: var(--pm-stone-300);
+  --color-pm-stone-400: var(--pm-stone-400);
+  --color-pm-stone-500: var(--pm-stone-500);
+  --color-pm-stone-600: var(--pm-stone-600);
+  --color-pm-stone-700: var(--pm-stone-700);
+  --color-pm-stone-800: var(--pm-stone-800);
+  --color-pm-stone-900: var(--pm-stone-900);
+  --color-pm-stone-950: var(--pm-stone-950);
+
+  /* Status utilities: bg-success-bg, text-success-fg, etc. */
+  --color-success-bg: var(--success-bg);
+  --color-success-fg: var(--success-fg);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-fg: var(--warning-fg);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-fg: var(--danger-fg);
+}
+
+/* ============================================================
+   BASE LAYER — Shadcn defaults, untouched
+   ============================================================ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}

@@ -1,0 +1,390 @@
+MISSION (ACHIEVED BEFORE AGE 20 YEARS OLD):
+1. $2,000 - $7,000 monthly income.
+2. Organized and fixed lifestyle with clear and strict daily schadules and routines.
+3. Multiple income streams:
+	- Multiple SaaS products.
+	- Private Web / App development tutorials.
+	- Multiple online businesses.
+4. Multi-skills:
+	Major Skills (Money Convertion):
+		- Web / App Development.
+		- Freelancing / Selling / Marketing.
+	Minor Skills (Add-ons):
+		- Computer graphics programming.
+		- Content creation.
+		- Video editing.
+		- Traditional Art.
+5. Lifestyle needs:
+	- Raider 150 Motorcycle (traveling localy).
+	- ASUS Zenbook S 14 (portable Laptop).
+	- Montly stock of protein and creatine powder.
+	- Complete food storage.
+	- Simple, fit, consistent style clothes.
+	- Grooming products.
+6. Physical achievements:
+	- Biger, heavier, stronger, and much more lean.
+	- High level calisthenics skills and endurance.
+	- High level arm wrestling skills and power.
+	- Good fighting skills.
+7. Support the family and loved ones financially.
+
+VISION:
+	A 20 year old who already figured it out and have the foundations for a much more successful
+	lifestyle with complete control over his time even though his still a college student. He was simply there in college
+	to gain laverage in dating, status, attention, and  meeting new people and expanding possible connections while just
+	completing his mother's wish which is to finish college. He can eat whatever or wherever he wants, he can go wherever he
+	wants, he can do whatever he wants, and wear whatever he wants, and with the financial capabilities and freedom, though he simply
+	choose to sit down in peace and work everyday while completing his daily training regimens with complete delicious protein rich meals.
+	Everyday his daily schedule and routine is to just train, then eat lots of protein, grooming, and go to place where he could just
+	listen to music in earphones in peace with his small high-spec laptop, and either developing new apps, learning or upgrading new skills,
+	building a website, app, or software for a client, pitching new clients, or teaching people (paid). He also looks pretty fucking jacked
+	at 5'4ft height with 65kg body weight pure muscles and strength built for calisthenics, arm wrestling, and fighting. He goes everywhere
+	around the city with his simple motorbike (though it's simple, to avoid bigger liabities) while wearing a fit and tight shirt, good looks,
+	and all day fresh. He also a content creator with above average followers estimating around 50k followers across platforms, mainly known
+	for his calisthenics and arm wrestling skills, physique, and lifestyle. He is also a kind of desribed as a renaissance man, since he
+	is very knowledgeable in technologies, art, athleticism, finance, mathematics/science
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PUBMARKET PROJECT STEP BY STEP TASK:
+2. Functions for Customer (CRUD): Product add cart -> checkout -> payment, settings, categories, history, and displays.
+3. Functions for Seller (CRUD): Register as a seller, shop setup, add products, and shop statistics.
+4. Functions for Admin (CRUD): List of users, products, history, and etc.
+5. ChatBot: support for customers, and description creation for sellers.
+6. Payment Integration: Paymonngo setup for customers checkout, and client.
+7. Enhance Design.
+
+DONE:
+-> OAuth + Email/Password Authentication + Onboarding Setup.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+heres another task, take a look at this query function:
+
+
+export async function getProducts(opts?: {
+
+  categorySlug?: string;
+
+  province?: string;
+
+  city?: string;
+
+  sellerId?: string;
+
+  search?: string;
+
+  minPrice?: number;
+
+  maxPrice?: number;
+
+  page?: number;
+
+  pageSize?: number;
+
+}): Promise<PaginatedResponse<DbProduct>> {
+
+  const supabase = await createClient();
+
+  const page = opts?.page ?? 1;
+
+  const pageSize = opts?.pageSize ?? 20;
+
+  const from = (page - 1) * pageSize;
+
+  const to = from + pageSize - 1;
+
+
+  let query = supabase
+
+    .from("products")
+
+    .select(
+
+      "*, seller:seller_profiles(id, shop_name, shop_logo_url, average_rating), category:categories(id, name, slug, icon)",
+
+      { count: "exact" },
+
+    )
+
+    .eq("is_active", true)
+
+    .eq("is_draft", false);
+
+
+  if (opts?.sellerId) query = query.eq("seller_id", opts.sellerId);
+
+  if (opts?.province) query = query.eq("province", opts.province);
+
+  if (opts?.city) query = query.eq("city", opts.city);
+
+  if (opts?.minPrice) query = query.gte("price", opts.minPrice);
+
+  if (opts?.maxPrice) query = query.lte("price", opts.maxPrice);
+
+
+  if (opts?.categorySlug) {
+
+    const { data: cat } = await supabase
+
+      .from("categories")
+
+      .select("id")
+
+      .eq("slug", opts.categorySlug)
+
+      .single();
+
+    if (cat) query = query.eq("category_id", cat.id);
+
+  }
+
+
+  if (opts?.search) {
+
+    query = query.textSearch("search_vector", opts.search, {
+
+      type: "websearch",
+
+    });
+
+  }
+
+
+  query = query.order("created_at", { ascending: false }).range(from, to);
+
+
+  const { data, error, count } = await query;
+
+  if (error) return { success: false, error: error.message };
+
+
+  const total = count ?? 0;
+
+  return {
+
+    success: true,
+
+    data: {
+
+      items: data ?? [],
+
+      total,
+
+      page,
+
+      pageSize,
+
+      totalPages: Math.ceil(total / pageSize),
+
+    },
+
+  };
+
+}
+
+
+
+
+... and this type:
+
+export type DbProduct = {
+
+  id: string;
+
+  seller_id: string;
+
+  category_id: string | null;
+
+  name: string;
+
+  slug: string;
+
+  description: string | null;
+
+  price: number;
+
+  original_price: number | null;
+
+  stock: number;
+
+  low_stock_threshold: number;
+
+  unit: string;
+
+  province: string;
+
+  city: string;
+
+  barangay: string;
+
+  thumbnail_url: string | null;
+
+  is_active: boolean;
+
+  is_draft: boolean;
+
+  is_featured: boolean;
+
+  ai_generated_description: boolean;
+
+  average_rating: number;
+
+  total_reviews: number;
+
+  total_sold: number;
+
+  search_vector: string | null;
+
+  created_at: string;
+
+  updated_at: string;
+
+};
+
+
+export type DbProductImage = {
+
+  id: string;
+
+  product_id: string;
+
+  url: string;
+
+  alt_text: string | null;
+
+  sort_order: number;
+
+  created_at: string;
+
+};
+
+
+
+
+
+and this sample mockup:
+
+const PRODUCTS: Product[] = [
+
+  {
+
+    id: "p001",
+
+    name: "Kangkong (Swamp Cabbage)",
+
+    category: "Vegetables",
+
+    price: 25,
+
+    stock: 4,
+
+    status: "active",
+
+    image: "🥬",
+
+    sold: 120,
+
+  },
+
+  {
+
+    id: "p002",
+
+    name: "Sitaw (String Beans)",
+
+    category: "Vegetables",
+
+    price: 35,
+
+    stock: 18,
+
+    status: "active",
+
+    image: "🫘",
+
+    sold: 85,
+
+  },
+
+  {
+
+    id: "p003",
+
+    name: "Tomatoes - 1kg Pack",
+
+    category: "Vegetables",
+
+    price: 80,
+
+    stock: 22,
+
+    status: "active",
+
+    image: "🍅",
+
+    sold: 210,
+
+  },
+
+ 
+
+
+.... now we need to create routes. to replace that mockup or atleast add the real db products existed in the db
